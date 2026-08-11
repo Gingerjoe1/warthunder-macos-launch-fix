@@ -8,6 +8,13 @@
 
 set -euo pipefail
 
+for cmd in arch; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "ERROR: required program not found: $cmd" >&2
+    exit 1
+  fi
+done
+
 BASE="${1:?Usage: $0 \"/path/to/Steam/steamapps/common/War Thunder\"}"
 INNER="$BASE/WarThunderLauncher.app/Contents/WarThunder.app"
 GAME="$INNER/Contents/Resources/game"
@@ -16,6 +23,12 @@ if [[ ! -x "$INNER/Contents/MacOS/aces" ]]; then
   echo "aces binary not found or not executable at:"
   echo "  $INNER/Contents/MacOS/aces"
   echo "Run fix-warthunder-mac.sh first."
+  exit 1
+fi
+
+if [[ ! -d "$GAME" ]]; then
+  echo "ERROR: game payload directory missing:"
+  echo "  $GAME"
   exit 1
 fi
 

@@ -33,6 +33,11 @@ Steam’s `wt_mac_install.vdf` backslash installscript error is cosmetic. Ignore
 
 `fix-warthunder-mac.sh` does 1–2. Step 3 is human-only.
 
+Nest restores write an undo script under `$WT/.wt-fix-backup/<timestamp>/`
+before moving (no default full-tree copy — that would duplicate ~80GB). Set
+`WT_FIX_BACKUP=1` for a full copy first, or `WT_FIX_YES=1` to skip the
+interactive confirm when stdin is a TTY.
+
 ### About code signing
 
 - **You should not need to re-sign** for the usual fix. The working payload on
