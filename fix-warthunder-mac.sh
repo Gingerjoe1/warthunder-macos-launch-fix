@@ -240,8 +240,9 @@ else
 fi
 
 echo
-echo "== Step 2: ad-hoc sign ONLY if a payload binary fails codesign --verify =="
-echo "(Skip healthy Developer ID binaries. Blind --force ad-hoc breaks the outer seal.)"
+echo "== Step 2: ad-hoc sign ONLY if a binary looks unsigned =="
+echo "(Gaijin TeamIdentifier present => leave alone. Do not use codesign --verify"
+echo " on in-bundle paths — that false-fails the nest seal and triggers bad resigns.)"
 
 SIGNED_ANY=0
 for target in \
