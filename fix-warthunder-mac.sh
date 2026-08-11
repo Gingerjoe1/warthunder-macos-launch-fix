@@ -36,15 +36,29 @@ Install the missing tools (Xcode CLT / macOS unzip+codesign are normally present
   fi
 }
 
-# Conservative signature check only — avoid codesign --deep here (can recurse
-# into huge trees / odd nest layouts and isn't needed for per-binary gates).
+# Do NOT use `codesign --verify` on paths inside WarThunder.app — macOS treats
+# MacOS/aces as the bundle main executable and fails verify when sealed
+# resources elsewhere in the nest differ (common after unpack). That false
+# negative would trigger a harmful force-sign. Identity display is enough:
+# real Gaijin builds have TeamIdentifier; unsigned binaries do not.
 needs_adhoc_sign() {
   local target="$1"
+  local info
   [[ -e "$target" ]] || return 1
-  if codesign --verify --quiet "$target" 2>/dev/null; then
+  info="$(codesign -dv "$target" 2>&1 || true)"
+  if echo "$info" | grep -q 'Signature=adhoc'; then
     return 1
   fi
-  return 0
+  if echo "$info" | grep -q 'TeamIdentifier='; then
+    # Has a real team signature (e.g. Gaijin Developer ID) — leave alone.
+    return 1
+  fi
+  # Explicitly unsigned / no identity → candidate for ad-hoc.
+  if echo "$info" | grep -Eqi 'code object is not signed|not signed at all|no signature'; then
+    return 0
+  fi
+  # Unknown — do not force-sign.
+  return 1
 }
 
 unzip_into() {

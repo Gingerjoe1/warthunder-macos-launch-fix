@@ -44,8 +44,10 @@ interactive confirm when stdin is a TTY.
   a corrected install is still Gaijin-signed from the zip.
 - Blind `codesign --force --sign -` is a **don’t** — it strips the secure
   timestamp and breaks the outer notarized seal.
-- The script only ad-hoc signs if `codesign --verify` fails after unpack
-  (fallback). Skip that path if verify already passes.
+- The script only ad-hoc signs if a binary looks **unsigned** (no
+  `TeamIdentifier` / “not signed”). It does **not** use `codesign --verify`
+  on in-bundle paths — that false-fails when the nest seal is imperfect and
+  would wrongly trigger a force-sign.
 
 ## Do not
 
